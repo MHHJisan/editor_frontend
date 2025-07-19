@@ -1,0 +1,356 @@
+/* Toolbar - Fixed at the Top */
+.toolbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 5px;
+  max-height: 55px;
+}
+
+/* Main Container - Scrollable */
+.main-container {
+  display: flex;
+  height: calc(100vh - 60px);
+  flex-wrap: nowrap; /* Prevent wrapping */
+  overflow-x: auto; /* Enables horizontal scrolling */
+  width: 100%;
+  flex: 1;
+}
+
+/* Content Wrapper - Horizontal scrolling for TOC, Editor, and Comments */
+.content-container {
+  position: relative;
+  flex: 10;
+  min-width: 1000px;
+  overflow: auto;
+}
+
+/* Table of Contents (TOC) */
+/* Sidebar container */
+.toc-sidebar {
+    position: relative;
+  max-width: 200px;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow-y: auto;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+
+}
+
+/* Collapsed state */
+.toc-sidebar.collapsed {
+  width: 65px; /* Collapsed width */
+}
+
+/* TOC Scrollable Content */
+.toc-scroll {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+.toc-title {
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* Empty TOC Message */
+.toc-empty {
+  text-align: center;
+  color: #777;
+  font-style: italic;
+}
+
+/* TOC List Items */
+.toc-item {
+  margin-bottom: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* TOC Links */
+.toc-link {
+  text-decoration: none !important; /* Removes underline */
+  color: #333; /* Adjust color as needed */
+  display: block;
+  padding: 5px 0;
+}
+
+.toc-link:hover {
+  color: #007bff; /* Change color on hover */
+}
+
+.editor-container {
+  position: relative;
+  flex: 7;
+  padding: 20px;
+}
+
+/* Text Editor */
+.text-editor {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 2cm;
+  border: 1px solid #ddd;
+  background: white;
+  outline: none;
+  overflow: auto; /* Allow scrolling for multi-page content */
+  /* Visual page breaks */
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(297mm - 1px),
+    rgba(0, 0, 0, 0.1) 1px
+  );
+  background-size: 100% 297mm;
+  background-repeat: repeat-y;
+}
+
+/* Textarea */
+.text-editor textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+}
+
+/* Text Editor Dynamic Sizes */
+.text-editor.a4 {
+  width: 210mm;
+  height: 297mm;
+}
+
+.text-editor.letter {
+  width: 216mm;
+  height: 279mm;
+}
+
+.text-editor.legal {
+  width: 216mm;
+  height: 356mm;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  max-height: 297mm;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+  .document-segment {
+    margin-bottom: 1em;
+    padding: 0.5em;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .document-segment:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .pending-change {
+    position: relative;
+    padding: 0.5em;
+    border-radius: 4px;
+    margin-bottom: 0.5em;
+  }
+  
+  .user-info-tooltip {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .pending-change:hover .user-info-tooltip {
+    opacity: 1;
+  }
+  
+  .approval-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .pending-change:hover .approval-actions {
+    opacity: 1;
+  }
+  
+  .approve-btn, .reject-btn {
+    margin-left: 5px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  .approve-btn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .reject-btn {
+    background-color: #f44336;
+    color: white;
+  }
+
+/* Smooth Scroll Effect */
+html {
+  scroll-behavior: smooth;
+}
+
+.highlighted-text {
+  position: relative;
+  border-radius: 3px;
+}
+
+button.floating-collapse-btn {
+  color: black !important;
+  background-color: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+button.floating-collapse-btn:hover {
+  background-color: #e9ecef !important;
+}
+
+/* For the comment and suggested edit textareas */
+.item-input .form-control {
+  font-size: 13px;
+}
+
+/* For the reply input fields */
+.floating-comment .form-control,
+.floating-suggestededit .form-control {
+  font-size: 13px;
+}
+
+/* For buttons inside floating elements */
+.item-input .btn,
+.floating-comment .btn,
+.floating-suggestededit .btn {
+  font-size: 13px;
+}
+
+.quick-access-toolbar {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 9999;
+}
+
+.toolbar-btn {
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Delete Button */
+.delete-floating-item {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #dc3545;
+  padding: 2px 5px;
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.delete-floating-item:hover {
+  opacity: 1;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+/* Floating Elements */
+.floating-comment,
+.floating-suggestededit {
+  position: absolute;
+  background: white;
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 5px;
+  width: 300px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  cursor: pointer;
+  font-size: 13px; /* Added this line */
+}
+
+/* Input Fields */
+.item-input {
+  position: absolute;
+  background: white;
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 5px;
+  width: 300px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px; /* Added this line */
+}
+
+.floating-item {
+  border-left: 3px solid #28a745;
+  padding-left: 10px;
+  margin-bottom: 8px;
+  word-break: break-word; /* Force break long words */
+  overflow-wrap: break-word; /* Alternate for word-wrap */
+  font-size: 13px; /* Added this line */
+}
+
+.badge-ellipsis {
+  font-weight: normal;
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflowing content */
+  text-overflow: ellipsis; /* Display ellipsis */
+  max-width: 270px; /* Set a maximum width (adjust as needed) */
+  display: inline-block; /* allows max-width to work */
+  font-size: 12px; /* Added this line */
+}
+
+.highlighted-active {
+  background-color: yellow !important;
+  transition: background-color 0.3s ease;
+}
+
+.comment-active {
+  background-color: rgba(255, 215, 0, 0.3);
+  border-left: 3px solid gold;
+  transition: background-color 0.3s ease;
+}
