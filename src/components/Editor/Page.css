@@ -2,11 +2,24 @@
   width: 210mm;
   min-height: 297mm;
   max-height: 297mm;
-  margin: 20px auto;
+  margin: 40px auto 0 auto;
   background: white;
   box-shadow: 0 0 5px #ccc;
-  padding: 40px 30px;
+  padding: 40px 30px 30px 30px;
   overflow: hidden;
   position: relative;
   page-break-after: always;
+}
+
+.page-number {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  font-weight: bold;
+  background: #fff;
+  z-index: 2;
 }

@@ -12,7 +12,7 @@ import useTableOfContents from "./collaboration/TOC";
 import useFloatingElements from "./collaboration/useFloatingElements";
 import Page from "./Page";
 
-const CHARS_PER_PAGE = 1800; // Rough estimate for A4, adjust as needed
+const CHARS_PER_PAGE = 1800; // Adjust for your needs
 
 function splitTextIntoPages(text) {
   const pages = [];
@@ -446,10 +446,19 @@ const Editor = () => {
   );
 
   const [text, setText] = useState("");
+
+  // Handle contentEditable changes
+  const handleInput = (e) => {
+    setText(e.currentTarget.innerText);
+  };
+
   const pages = splitTextIntoPages(text);
 
   return (
-    <div className="container-fluid">
+    <div
+      className="editor-paged-container"
+      style={{ background: "#eee", minHeight: "100vh", padding: "20px 0" }}
+    >
       <Toolbar
         paperSize={paperSize}
         setPaperSize={setPaperSize}
@@ -460,489 +469,40 @@ const Editor = () => {
       <div className="main-container">
         <TOCComponent />
         <div className="content-container">
-          <div className="editor-container" onClick={handleEditorClick}>
-            {/* Controlled textarea for input */}
-            <textarea
-              style={{
-                width: "100%",
-                minHeight: "120px",
-                marginBottom: "20px",
-              }}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Start typing your document..."
-            />
-            {/* Render each page */}
-            {pages.map((pageText, idx) => (
-              <Page key={idx}>
-                <div
-                  style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-                >
-                  {pageText}
-                </div>
-              </Page>
-            ))}
-          </div>
-
-          {/* Collapse button for floating elements */}
-          <Button
-            className="floating-collapse-btn"
+          {/* Single editable area */}
+          <div
+            ref={editorRef}
+            contentEditable
+            suppressContentEditableWarning
+            className="editor-page-content"
             style={{
-              position: "fixed",
-              top: "85px",
-              left: `calc(${sidebarWidth}px + 66%)`,
-              zIndex: 1000,
+              minHeight: "250mm",
+              outline: "2px solid #d9d9d9",
+              background: "#fff",
+              margin: "0 auto 40px auto",
+              width: "210mm",
+              boxShadow: "0 0 5px #ccc",
+              padding: "40px 30px 30px 30px",
+              borderRadius: "4px",
+              direction: "ltr",
             }}
-            onClick={() => {
-              setShowFloatingElements(!showFloatingElements);
-              setTimeout(() => {
-                adjustItemPositionsRef.current();
-                realignFloatingItemsRef.current();
-              }, 10);
-            }}
-          >
-            <i
-              className={`bi bi-chevron-double-${
-                showFloatingElements ? "left" : "right"
-              }`}
-            ></i>
-          </Button>
-
-          {showFloatingElements && (
-            <>
-              {/* Floating buttons for adding comments and suggested edits */}
-              {showFloatingButton && (
-                <div
-                  className="quick-access-toolbar"
-                  style={{
-                    top: `${floatingButtonPosition.top}px`,
-                    left: `${floatingButtonPosition.left}px`,
-                  }}
-                >
-                  <Button
-                    variant="light"
-                    className="toolbar-btn"
-                    onClick={() => {
-                      handleAddComment();
-                      setShowFloatingButton(false);
-                    }}
-                  >
-                    <i className="bi bi-chat-left-text me-1"></i>
-                    Comment
-                  </Button>
-                  <Button
-                    variant="light"
-                    className="toolbar-btn"
-                    onClick={() => {
-                      handleAddSuggestEdit();
-                      setShowFloatingButton(false);
-                    }}
-                  >
-                    <i className="bi bi-pencil-square me-1"></i>
-                    Suggest Edit
-                  </Button>
-                </div>
-              )}
-
-              {/* Render floating comments */}
-              {floatingElements
-                .filter((element) => element.type === "comment")
-                .map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="floating-comment"
-                    data-comment-id={comment.id}
-                    style={{
-                      top: `${comment.position.top}px`,
-                      left: `calc(${sidebarWidth}px + 70%)`,
-                      background:
-                        activeItemId === comment.id ? "lightyellow" : "white",
-                    }}
-                    onClick={() =>
-                      handleFloatingElementClick(comment.id, "comment")
-                    }
-                  >
-                    {userName === comment.user && (
-                      /* Delete Button */
-                      <button
-                        className="delete-floating-item"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteFloatingElement(comment.id, "comment");
-                        }}
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    )}
-
-                    <li className="mb-2 floating-item">
-                      <strong>
-                        {comment.user}
-                        <br />
-                        commented on:
-                        <span className="badge bg-success badge-ellipsis">
-                          {comment.selectedText}
-                        </span>
-                        <br />
-                      </strong>
-                      {comment.text}
-                    </li>
-
-                    {/* Display Replies */}
-                    {comment.replies.length > 0 && (
-                      <ul className="mt-2">
-                        {comment.replies.map((reply) => (
-                          <li key={reply.id} className="text-secondary">
-                            <strong>{reply.user}:</strong> {reply.text}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    {/* <div className="d-flex justify-content-end mt-2 gap-2">
-                {comment.status === "open" && (
-                  <Button 
-                    size="sm" 
-                    onClick={() => {
-                      markCommentAsDone(comment.id);
-                      setTimeout(() => {
-                        adjustItemPositionsRef.current();
-                        realignFloatingItemsRef.current(); // Add realignment
-                      }, 10);
-                    }}
-                  >
-                    Done
-                  </Button>
-                )}
-              {activeReplyId !== comment.id && (
-                <Button
-                  size="sm"
-                  variant="outline-primary"
-                  onClick={() => {
-                    // Toggle reply state
-                    const isExpanding = activeReplyId !== comment.id;
-                    setActiveReplyId(isExpanding ? comment.id : null);
-                    
-                    // Allow the DOM to update before adjusting positions
-                    setTimeout(() => {
-                      adjustItemPositionsRef.current();
-                      realignFloatingItemsRef.current(); // Add realignment when toggling reply
-                    }, 10);
-                  }}
-                >
-                  Reply
-                </Button>
-                )}
-              </div> */}
-
-                    {/* Reply Input Field (Shows Only When Reply Button Clicked) */}
-                    {activeReplyId !== comment.id && (
-                      <div className="mt-2 d-flex align-items-center gap-2">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Write a reply..."
-                          value={replyText}
-                          onChange={(e) => setReplyText(e.target.value)}
-                        />
-                        <div
-                          className="btn btn-primary btn-lg mt-1"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent event bubbling
-                            replyComment(userName, comment.id);
-                            setActiveReplyId(null); // Close the reply input
-
-                            // Allow the DOM to update before adjusting positions
-                            setTimeout(() => {
-                              adjustItemPositionsRef.current();
-                              realignFloatingItemsRef.current(); // Add realignment after submitting reply
-                            }, 10);
-                          }}
-                        >
-                          <i
-                            className="bi bi-send"
-                            style={{ pointerEvents: "none" }}
-                          ></i>
-                        </div>
-                      </div>
-                    )}
-
-                    {comment.status === "deleted" && (
-                      <p className="text-danger mt-2">✖ Deleted</p>
-                    )}
-                  </div>
-                ))}
-
-              {/* Render floating suggested edits */}
-              {floatingElements
-                .filter((element) => element.type === "suggestededit")
-                .map((suggestededit) => (
-                  <div
-                    key={suggestededit.id}
-                    className="floating-suggestededit"
-                    data-suggestededit-id={suggestededit.id}
-                    style={{
-                      top: `${suggestededit.position.top}px`,
-                      left: `calc(${sidebarWidth}px + 70%)`,
-                      background:
-                        activeItemId === suggestededit.id
-                          ? "lightyellow"
-                          : "white",
-                    }}
-                    onClick={() =>
-                      handleFloatingElementClick(
-                        suggestededit.id,
-                        "suggestededit"
-                      )
-                    }
-                  >
-                    {userName === suggestededit.user && (
-                      /* Delete Button */
-                      <button
-                        className="delete-floating-item"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteFloatingElement(
-                            suggestededit.id,
-                            "suggestededit"
-                          );
-                        }}
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    )}
-
-                    <li className="mb-2 floating-item">
-                      <strong>
-                        {suggestededit.user}
-                        <br />
-                        Replace:
-                        <p>
-                          "{suggestededit.selectedText}" with "
-                          <span style={{ color: "blue" }}>
-                            {suggestededit.text}
-                          </span>
-                          "
-                        </p>
-                      </strong>
-                    </li>
-
-                    {/* Display Replies */}
-                    {suggestededit.replies.length > 0 && (
-                      <ul className="mt-2">
-                        {suggestededit.replies.map((reply) => (
-                          <li key={reply.id} className="text-secondary">
-                            <strong>{reply.user}:</strong> {reply.text}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    <div className="d-flex justify-content-end mt-2 gap-2">
-                      {suggestededit.status === "pending" && (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              approveSuggestedEdit(suggestededit.id);
-                              setTimeout(() => {
-                                adjustItemPositionsRef.current();
-                                realignFloatingItemsRef.current(); // Add realignment
-                              }, 10);
-                            }}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => {
-                              declineSuggestedEdit(suggestededit.id);
-                              setTimeout(() => {
-                                adjustItemPositionsRef.current();
-                                realignFloatingItemsRef.current(); // Add realignment
-                              }, 10);
-                            }}
-                          >
-                            Decline
-                          </Button>
-                        </>
-                      )}
-                      {/* {activeReplyId !== suggestededit.id && (
-                <Button
-                  size="sm"
-                  variant="outline-primary"
-                  onClick={() => {
-                    // Toggle reply state
-                    const isExpanding = activeReplyId !== suggestededit.id;
-                    setActiveReplyId(isExpanding ? suggestededit.id : null);
-                    
-                    // Allow the DOM to update before adjusting positions
-                    setTimeout(() => {
-                      adjustItemPositionsRef.current();
-                      realignFloatingItemsRef.current(); // Add realignment when toggling reply
-                    }, 10);
-                  }}
-                >
-                  Reply
-                </Button>
-              )} */}
-                    </div>
-
-                    {/* Reply Input Field (Shows Only When Reply Button Clicked) */}
-                    {activeReplyId !== suggestededit.id && (
-                      <div className="mt-2 d-flex align-items-center gap-2">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Write a reply..."
-                          value={replyText}
-                          onChange={(e) => setReplyText(e.target.value)}
-                        />
-                        <Button
-                          className="btn btn-primary btn-lg mt-1"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent event bubbling
-                            replySuggestedEdit(userName, suggestededit.id);
-                            setActiveReplyId(null); // Close the reply input
-
-                            // Allow the DOM to update before adjusting positions
-                            setTimeout(() => {
-                              adjustItemPositionsRef.current();
-                              realignFloatingItemsRef.current(); // Add realignment after submitting reply
-                            }, 10);
-                          }}
-                        >
-                          <i
-                            className="bi bi-send"
-                            style={{ pointerEvents: "none" }}
-                          ></i>
-                        </Button>
-                      </div>
-                    )}
-
-                    {suggestededit.status === "approved" && (
-                      <p className="text-success mt-2">✔ Approved</p>
-                    )}
-
-                    {suggestededit.status === "declined" && (
-                      <p className="text-danger mt-2">✖ Declined</p>
-                    )}
-
-                    {suggestededit.status === "deleted" && (
-                      <p className="text-danger mt-2">✖ Deleted</p>
-                    )}
-                  </div>
-                ))}
-
-              {/* Comment Input Field */}
-              {isCommenting && commentPosition?.top !== undefined && (
-                <div
-                  className="item-input"
-                  style={{
-                    top: `${commentPosition.top}px`,
-                    left: `calc(${sidebarWidth}px + 70%)`,
-                  }}
-                >
-                  <strong>
-                    {userName}
-                    <br />
-                    commenting on:
-                    <span className="badge bg-success badge-ellipsis">
-                      {commentPosition.selectedText}
-                    </span>
-                    <br />
-                  </strong>
-                  <Form.Control
-                    type="textarea"
-                    placeholder="Add a comment..."
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handleSubmitComment()
-                    }
-                    autoFocus
-                  />
-                  <div className="col">
-                    <Button
-                      size="sm"
-                      variant="success"
-                      onClick={handleSubmitComment}
-                    >
-                      Submit
-                    </Button>{" "}
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => {
-                        cancelFloatingElement("comment");
-                        setTimeout(() => {
-                          adjustItemPositionsRef.current();
-                          realignFloatingItemsRef.current(); // Add realignment after canceling
-                        }, 10);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Suggested Edit Input Field */}
-              {isSuggestingEdit && suggestEditPosition?.top !== undefined && (
-                <div
-                  className="item-input"
-                  style={{
-                    top: `${suggestEditPosition.top}px`,
-                    left: `calc(${sidebarWidth}px + 70%)`,
-                  }}
-                >
-                  <strong>
-                    {userName}
-                    <br />
-                    Replace:
-                    <span className="badge bg-success badge-ellipsis">
-                      "{suggestEditPosition.selectedText}"
-                    </span>{" "}
-                    with
-                    <br />
-                  </strong>
-                  <Form.Control
-                    type="textarea"
-                    placeholder="Suggest a replacement..."
-                    value={suggestEditText}
-                    onChange={(e) => setSuggestEditText(e.target.value)}
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handleSubmitSuggestEdit()
-                    }
-                    autoFocus
-                  />
-                  <div className="col">
-                    <Button
-                      size="sm"
-                      variant="success"
-                      onClick={handleSubmitSuggestEdit}
-                    >
-                      Submit
-                    </Button>{" "}
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => {
-                        cancelFloatingElement("suggestededit");
-                        setTimeout(() => {
-                          adjustItemPositionsRef.current();
-                          realignFloatingItemsRef.current(); // Add realignment after canceling
-                        }, 10);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+            onInput={handleInput}
+          />
+          {/* Paginated preview */}
+          {pages.map((pageText, idx) => (
+            <Page key={idx} pageNumber={idx + 1}>
+              <div
+                className="editor-page-preview"
+                style={{
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  minHeight: "250mm",
+                }}
+              >
+                {pageText}
+              </div>
+            </Page>
+          ))}
         </div>
       </div>
     </div>

@@ -1,48 +1,95 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import { useAuth } from '../../utils/authService';
-import { successAlert, errorAlert, confirmAlert, toastAlert } from '../../utils/alerts';
+import axios from "axios";
+import { useAuth } from "../../utils/authService";
+import {
+  successAlert,
+  errorAlert,
+  confirmAlert,
+  toastAlert,
+} from "../../utils/alerts";
 
 import {
-  Layout, Menu, Avatar, Badge, Dropdown, Input, Card, List, Progress,
-  Statistic, Checkbox, Button, Tag, Typography, Tabs, Table, Calendar,
-  Tooltip, Modal, Form, notification, Spin, DatePicker, Select, Space,
-  Divider, TimePicker, Row, Col, message
-} from 'antd';
+  Layout,
+  Menu,
+  Avatar,
+  Badge,
+  Dropdown,
+  Input,
+  Card,
+  List,
+  Progress,
+  Statistic,
+  Checkbox,
+  Button,
+  Tag,
+  Typography,
+  Tabs,
+  Table,
+  Calendar,
+  Tooltip,
+  Modal,
+  Form,
+  notification,
+  Spin,
+  DatePicker,
+  Select,
+  Space,
+  Divider,
+  TimePicker,
+  Row,
+  Col,
+  message,
+} from "antd";
 import {
-  HomeOutlined, CheckSquareOutlined, FolderOutlined, FileOutlined,
-  LinkOutlined, AuditOutlined, BellOutlined, UserOutlined, LogoutOutlined,
-  PlusOutlined, SearchOutlined, StarOutlined, HistoryOutlined, TeamOutlined,
-  SettingOutlined, DatabaseOutlined, DashboardOutlined, BarChartOutlined,
-  FileTextOutlined, CalendarOutlined, LockOutlined
-} from '@ant-design/icons';
-import moment from 'moment';
+  HomeOutlined,
+  CheckSquareOutlined,
+  FolderOutlined,
+  FileOutlined,
+  LinkOutlined,
+  AuditOutlined,
+  BellOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  StarOutlined,
+  HistoryOutlined,
+  TeamOutlined,
+  SettingOutlined,
+  DatabaseOutlined,
+  DashboardOutlined,
+  BarChartOutlined,
+  FileTextOutlined,
+  CalendarOutlined,
+  LockOutlined,
+} from "@ant-design/icons";
+import moment from "moment";
 
 // Import Components
-import HeaderComponent from './components/Header';
-import Sidebar from './components/Sidebar';
+import HeaderComponent from "./components/Header";
+import Sidebar from "./components/Sidebar";
 
-import Overview from './components/Dashboard/Overview';
-import MyTasks from './components/Dashboard/MyTasks';
-import Documents from './components/Dashboard/Documents/Documents';
-import DocumentApprovals from './components/Dashboard/Documents/DocumentApprovals';
-import CalendarTab from './components/Dashboard/CalendarTab';
-import Accounts from './components/Dashboard/Accounts';
-import Audit from './components/Dashboard/Audit';
-import References from './components/Dashboard/References';
-import Templates from './components/Dashboard/Templates/Templates';
-import Settings from './components/Dashboard/Settings';
-import CreateTemplate from './components/Dashboard/Templates/CreateTemplate';
-import EditTemplate from './components/Dashboard/Templates/EditTemplate';
-import TemplatePreview from './components/Dashboard/Templates/TemplatePreview';
-import ApproverDashboard from './components/Dashboard/Templates/ApproverDashboard';
-import AdminTemplateMonitoring from './components/Dashboard/Templates/AdminTemplateMonitoring';
+import Overview from "./components/Dashboard/Overview";
+import MyTasks from "./components/Dashboard/MyTasks";
+import Documents from "./components/Dashboard/Documents/Documents";
+import DocumentApprovals from "./components/Dashboard/Documents/DocumentApprovals";
+import CalendarTab from "./components/Dashboard/CalendarTab";
+import Accounts from "./components/Dashboard/Accounts";
+import Audit from "./components/Dashboard/Audit";
+import References from "./components/Dashboard/References";
+import Templates from "./components/Dashboard/Templates/Templates";
+import Settings from "./components/Dashboard/Settings";
+import CreateTemplate from "./components/Dashboard/Templates/CreateTemplate";
+import EditTemplate from "./components/Dashboard/Templates/EditTemplate";
+import TemplatePreview from "./components/Dashboard/Templates/TemplatePreview";
+import ApproverDashboard from "./components/Dashboard/Templates/ApproverDashboard";
+import AdminTemplateMonitoring from "./components/Dashboard/Templates/AdminTemplateMonitoring";
 
-import PasswordConfirmModal from './components/Modals/PasswordConfirmModal';
-import CreateDocumentModal from './components/Modals/CreateDocumentModal';
-import JoinDocumentModal from './components/Modals/JoinDocumentModal';
-import CreateTaskModal from './components/Modals/CreateTaskModal';
+import PasswordConfirmModal from "./components/Modals/PasswordConfirmModal";
+import CreateDocumentModal from "./components/Modals/CreateDocumentModal";
+import JoinDocumentModal from "./components/Modals/JoinDocumentModal";
+import CreateTaskModal from "./components/Modals/CreateTaskModal";
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -50,10 +97,10 @@ const { Title, Text, Paragraph } = Typography;
 const Home = () => {
   const { user, logout } = useAuth(); // Get user and logout from auth context
   const [docId, setDocId] = useState("");
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [localTime, setLocalTime] = useState('');
+  const [localTime, setLocalTime] = useState("");
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -78,14 +125,14 @@ const Home = () => {
   const confirmationInProgress = useRef(false);
   const [form] = Form.useForm();
   const [taskForm] = Form.useForm();
-  
+
   const navigate = useNavigate();
 
   // Define the password confirmation handler
   const requirePasswordConfirmation = useCallback((callback) => {
     if (confirmationInProgress.current) return;
     confirmationInProgress.current = true;
-    
+
     setPasswordConfirmCallback(() => () => {
       callback();
       confirmationInProgress.current = false;
@@ -97,22 +144,22 @@ const Home = () => {
   const handlePasswordConfirmed = async (password) => {
     try {
       // Call the verify-password endpoint
-      const response = await axios.post('/api/verify-password', {
-        userId: user.id,  // Assuming you have access to the current user
-        password
+      const response = await axios.post("/api/verify-password", {
+        userId: user.id, // Assuming you have access to the current user
+        password,
       });
-      
+
       if (response.data.verified) {
         if (passwordConfirmCallback) {
           passwordConfirmCallback();
         }
         setPasswordModalVisible(false);
       } else {
-        errorAlert('Incorrect password');
+        errorAlert("Incorrect password");
       }
     } catch (error) {
-      console.error('Password verification failed:', error);
-      errorAlert(error.response?.data?.error || 'Password verification failed');
+      console.error("Password verification failed:", error);
+      errorAlert(error.response?.data?.error || "Password verification failed");
     }
   };
 
@@ -125,92 +172,92 @@ const Home = () => {
   // Dashboard menu items with dropdowns
   const menuItems = [
     {
-      key: 'overview',
+      key: "overview",
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: "Dashboard",
     },
     {
-      key: 'my-tasks',
+      key: "my-tasks",
       icon: <CheckSquareOutlined />,
-      label: 'My Tasks',
+      label: "My Tasks",
     },
     {
-      key: 'documents',
+      key: "documents",
       icon: <FileOutlined />,
-      label: 'Documents',
+      label: "Documents",
       children: [
         {
-          key: 'documents-list',
-          label: 'All Documents',
+          key: "documents-list",
+          label: "All Documents",
         },
         {
-          key: 'document-approvals',
-          label: 'Document Approvals',
+          key: "document-approvals",
+          label: "Document Approvals",
         },
         {
-          key: 'create-document',
+          key: "create-document",
           icon: <PlusOutlined />,
-          style: { border: '1px solid #d9d9d9' }, // Proper style object
-          label: 'Create Document',
+          style: { border: "1px solid #d9d9d9" }, // Proper style object
+          label: "Create Document",
           excludeMember: true,
         },
         {
-          key: 'join-document',
+          key: "join-document",
           icon: <FileTextOutlined />,
-          style: { border: '1px solid #d9d9d9' }, // Proper style object
-          label: 'Join Document',
+          style: { border: "1px solid #d9d9d9" }, // Proper style object
+          label: "Join Document",
           excludeMember: true,
         },
-      ]
+      ],
     },
     {
-      key: 'templates',
+      key: "templates",
       icon: <FileTextOutlined />,
-      label: 'Templates',
+      label: "Templates",
       excludeMember: true,
       children: [
         {
-          key: 'templates-list',
-          label: 'All Templates',
+          key: "templates-list",
+          label: "All Templates",
         },
         {
-          key: 'template-monitoring',
-          label: 'Template Approvals',
+          key: "template-monitoring",
+          label: "Template Approvals",
         },
         {
-          key: 'create-template',
+          key: "create-template",
           icon: <PlusOutlined />,
-          style: { border: '1px solid #d9d9d9' }, // Proper style object
-          label: 'Create Template',
+          style: { border: "1px solid #d9d9d9" }, // Proper style object
+          label: "Create Template",
           adminOnly: true,
-        }
-      ]
+        },
+      ],
     },
     {
-      key: 'calendar',
+      key: "calendar",
       icon: <CalendarOutlined />,
-      label: 'Calendar',
+      label: "Calendar",
     },
     {
-      key: 'accounts',
+      key: "accounts",
       icon: <TeamOutlined />,
-      label: 'Account Management',
+      label: "Account Management",
     },
     {
-      key: 'references',
+      key: "references",
       icon: <LinkOutlined />,
-      label: 'References',
+      label: "References",
     },
     {
-      key: 'audit',
+      key: "audit",
       icon: <AuditOutlined />,
-      label: 'Audit Trail',
+      label: "Audit Trail",
       adminOnly: true,
     },
     {
-      key: 'settings',
+      key: "settings",
       icon: <SettingOutlined />,
-      label: 'Settings',
+      label: "Settings",
     },
   ];
 
@@ -219,7 +266,7 @@ const Home = () => {
     console.log(user);
     if (!user) {
       // Redirect to login if no user is authenticated
-      navigate('/login');
+      navigate("/login");
     } else {
       setLoading(false);
     }
@@ -229,84 +276,94 @@ const Home = () => {
   const handleLogout = () => {
     logout();
     notification.success({
-      message: 'Logged Out',
-      description: 'You have been successfully logged out.',
+      message: "Logged Out",
+      description: "You have been successfully logged out.",
     });
-    navigate('/login');
+    navigate("/login");
   };
 
   // Handle menu item selection
   const handleMenuSelect = (key) => {
-    if (key === 'create-document') {
+    if (key === "create-document") {
       setNewDocVisible(true);
-    } else if (key === 'join-document') {
+    } else if (key === "join-document") {
       setIsJoinDocModalVisible(true);
     } else {
       setActiveTab(key);
     }
   };
 
-// Create New Document
-const handleCreateDocument = () => {
-  setNewDocVisible(true);
-};
+  // Create New Document
+  const handleCreateDocument = () => {
+    setNewDocVisible(true);
+  };
 
-const handleDocumentFormSubmit = async (values) => {
-  if (!user) return;
+  const handleDocumentFormSubmit = async (values) => {
+    if (!user) return;
 
-  try {
-    setLoading(true);
-    
-    let content = null;
-    // Find template content if templateId is provided
-    if (values.templateId) {
-    const template = templates.find(templates => templates.id === values.templateId);
-    content = JSON.parse(template.content);
-    }
+    try {
+      setLoading(true);
 
-    // Prepare the document data with all fields
-    const documentData = {
-      title: values.title || `Untitled Document - ${new Date().toLocaleDateString()}`,
-      created_by: user.id,
-      template_id: values.templateId || null,
-      content: content.content || null, // Use the fetched template content
-      tasks: values.tasks
-        ? values.tasks
-            .filter(task => task.title) // Only include tasks with titles
-            .map(task => ({
-              title: task.title,
-              description: task.description || null,
-              due_date: values.dueDate ? values.dueDate.format('YYYY-MM-DD HH:mm') : null,
-              created_by: user.id
-            }))
-        : [],
-      // Only include other participants - backend will add creator as author
-      participants: (values.participants || []).map(p => ({
-        user_id: p.userId,
-        role: p.role
-      }))
-    };
+      let content = null;
+      // Find template content if templateId is provided
+      if (values.templateId) {
+        const template = templates.find((t) => t.id === values.templateId);
+        if (template && template.content) {
+          content = JSON.parse(template.content);
+        }
+      }
 
-    const documentResponse = await axios.post('/api/create-document', documentData);
+      // Prepare the document data with all fields
+      const documentData = {
+        title:
+          values.title ||
+          `Untitled Document - ${new Date().toLocaleDateString()}`,
+        created_by: user.id,
+        template_id: values.templateId || null,
+        content: content ? content.content : null, // Safely use content
+        tasks: values.tasks
+          ? values.tasks
+              .filter((task) => task.title)
+              .map((task) => ({
+                title: task.title,
+                description: task.description || null,
+                due_date: values.dueDate
+                  ? values.dueDate.format("YYYY-MM-DD HH:mm")
+                  : null,
+                created_by: user.id,
+              }))
+          : [],
+        participants: (values.participants || []).map((p) => ({
+          user_id: p.userId,
+          role: p.role,
+        })),
+      };
 
-    if (documentResponse.data.success) {
-      setNewDocVisible(false);
-      notification.success({
-        message: 'Document Created',
-        description: 'Your new document has been created successfully.',
+      const documentResponse = await axios.post(
+        "/api/create-document",
+        documentData
+      );
+
+      if (documentResponse.data.success) {
+        setNewDocVisible(false);
+        notification.success({
+          message: "Document Created",
+          description: "Your new document has been created successfully.",
+        });
+        navigate(`/doc/${documentResponse.data.document_id}`);
+      }
+    } catch (error) {
+      console.error("❌ Error creating document:", error);
+      notification.error({
+        message: "Failed to Create Document",
+        description:
+          error.response?.data?.message ||
+          "There was an error creating your document. Please try again.",
       });
-      navigate(`/doc/${documentResponse.data.document_id}`);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("❌ Error creating document:", error);
-    notification.error({
-      message: 'Failed to Create Document',
-      description: error.response?.data?.message || 'There was an error creating your document. Please try again.',
-    });
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // Join Document
   const showJoinDocModal = () => {
@@ -316,30 +373,33 @@ const handleDocumentFormSubmit = async (values) => {
   const handleJoin = async (values) => {
     if (!user) {
       notification.warning({
-        message: 'Authentication Required',
-        description: 'Please log in to join a document.',
+        message: "Authentication Required",
+        description: "Please log in to join a document.",
       });
       return;
     }
 
     try {
       setLoading(true);
-      const response = await axios.get(`/api/check-document-access/${user.id}/${values.docId}`);
-      
+      const response = await axios.get(
+        `/api/check-document-access/${user.id}/${values.docId}`
+      );
+
       if (response.data.hasAccess) {
         setIsJoinDocModalVisible(false);
         navigate(`/doc/${values.docId}`);
       } else {
         notification.warning({
-          message: 'Access Denied',
-          description: 'You do not have access to this document.',
+          message: "Access Denied",
+          description: "You do not have access to this document.",
         });
       }
     } catch (error) {
       console.error("❌ Error joining document:", error);
       notification.error({
-        message: 'Failed to Join',
-        description: 'Failed to join the document. Please check the document ID and try again.',
+        message: "Failed to Join",
+        description:
+          "Failed to join the document. Please check the document ID and try again.",
       });
     } finally {
       setLoading(false);
@@ -347,12 +407,12 @@ const handleDocumentFormSubmit = async (values) => {
   };
 
   const handleEditTemplate = (template) => {
-    const templateToEdit = templates.find(t => t.id === template.id);
+    const templateToEdit = templates.find((t) => t.id === template.id);
     setEditingTemplate(templateToEdit);
   };
 
   const handlePreviewTemplate = (template) => {
-    const templateToPreview = templates.find(t => t.id === template.id);
+    const templateToPreview = templates.find((t) => t.id === template.id);
     setPreviewTemplate(templateToPreview);
   };
 
@@ -366,10 +426,10 @@ const handleDocumentFormSubmit = async (values) => {
 
     try {
       setLoading(true);
-      const response = await axios.post('/api/create-task', {
+      const response = await axios.post("/api/create-task", {
         title: values.title,
-        description: values.description || '',
-        due_date: values.dueDate.format('YYYY-MM-DD'),
+        description: values.description || "",
+        due_date: values.dueDate.format("YYYY-MM-DD"),
         priority: values.priority,
         assigned_to: values.assignedTo,
         project_id: values.projectId,
@@ -380,16 +440,16 @@ const handleDocumentFormSubmit = async (values) => {
         setNewTaskVisible(false);
         taskForm.resetFields();
         notification.success({
-          message: 'Task Created',
-          description: 'Your new task has been created successfully.',
+          message: "Task Created",
+          description: "Your new task has been created successfully.",
         });
         fetchUserData();
       }
     } catch (error) {
       console.error("Error creating task:", error);
       notification.error({
-        message: 'Failed to Create Task',
-        description: 'There was an error creating your task. Please try again.',
+        message: "Failed to Create Task",
+        description: "There was an error creating your task. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -400,23 +460,27 @@ const handleDocumentFormSubmit = async (values) => {
   const toggleTask = async (taskId, completed) => {
     try {
       const response = await axios.put(`/api/update-task/${taskId}`, {
-        completed: !completed
+        completed: !completed,
       });
-      
+
       if (response.data.success) {
-        setTasks(tasks.map(task => 
-          task.id === taskId ? { ...task, completed: !completed } : task
-        ));
+        setTasks(
+          tasks.map((task) =>
+            task.id === taskId ? { ...task, completed: !completed } : task
+          )
+        );
         notification.success({
-          message: completed ? 'Task Reopened' : 'Task Completed',
-          description: completed ? 'The task has been marked as incomplete.' : 'The task has been marked as complete.',
+          message: completed ? "Task Reopened" : "Task Completed",
+          description: completed
+            ? "The task has been marked as incomplete."
+            : "The task has been marked as complete.",
         });
       }
     } catch (error) {
       console.error("Error updating task:", error);
       notification.error({
-        message: 'Failed to Update Task',
-        description: 'There was an error updating the task status.',
+        message: "Failed to Update Task",
+        description: "There was an error updating the task status.",
       });
     }
   };
@@ -424,7 +488,7 @@ const handleDocumentFormSubmit = async (values) => {
   // Time formatting
   useEffect(() => {
     const timer = setInterval(() => {
-      setLocalTime(moment().format('HH:mm:ss A [GMT]Z'));
+      setLocalTime(moment().format("HH:mm:ss A [GMT]Z"));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -439,7 +503,17 @@ const handleDocumentFormSubmit = async (values) => {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const [docsRes, tasksRes, templatesRes, usersRes, invitedUsersRes, eventsRes, activityRes, departmentsRes, templateCategoriesRes] = await Promise.all([
+      const [
+        docsRes,
+        tasksRes,
+        templatesRes,
+        usersRes,
+        invitedUsersRes,
+        eventsRes,
+        activityRes,
+        departmentsRes,
+        templateCategoriesRes,
+      ] = await Promise.all([
         axios.get(`/api/my-docs/${user.id}`),
         axios.get(`/api/tasks/${user.id}`),
         axios.get(`/api/templates/${user.id}`),
@@ -451,7 +525,7 @@ const handleDocumentFormSubmit = async (values) => {
         axios.get(`/api/template_categories/${user.orgId}`),
         /* axios.get(`/api/notifications/${user.id}`), */
       ]);
-      
+
       setDocuments(docsRes.data || []);
       setTasks(tasksRes.data || []);
       setTemplates(templatesRes.data || []);
@@ -464,96 +538,193 @@ const handleDocumentFormSubmit = async (values) => {
     } catch (error) {
       console.error("Error fetching data:", error);
       notification.error({
-        message: 'Data Fetch Error',
-        description: 'Failed to load your dashboard data. Please refresh the page.',
+        message: "Data Fetch Error",
+        description:
+          "Failed to load your dashboard data. Please refresh the page.",
       });
     } finally {
       setLoading(false);
     }
   };
 
-// Predefined Ant Design colors
-// This includes the standard colors from Ant Design's palette
-// Define Ant Design's standard colors
-const antColors = [
-  'red',
-  'volcano',
-  'orange',
-  'gold',
-  'yellow',
-  'lime',
-  'green',
-  'cyan',
-  'blue',
-  'geekblue',
-  'purple',
-  'magenta'
-];
+  // Predefined Ant Design colors
+  // This includes the standard colors from Ant Design's palette
+  // Define Ant Design's standard colors
+  const antColors = [
+    "red",
+    "volcano",
+    "orange",
+    "gold",
+    "yellow",
+    "lime",
+    "green",
+    "cyan",
+    "blue",
+    "geekblue",
+    "purple",
+    "magenta",
+  ];
 
-// Function to get a deterministic color based on string input
-const getConsistentColor = (str) => {
-  if (!str) return 'default';
-  
-  // Simple hash function to get number from string
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  
-  // Use absolute value of hash to get index
-  const index = Math.abs(hash) % antColors.length;
-  return antColors[index];
-};
+  // Function to get a deterministic color based on string input
+  const getConsistentColor = (str) => {
+    if (!str) return "default";
 
+    // Simple hash function to get number from string
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash = hash & hash; // Convert to 32bit integer
+    }
+
+    // Use absolute value of hash to get index
+    const index = Math.abs(hash) % antColors.length;
+    return antColors[index];
+  };
 
   // Mock data for demonstration in case the API calls fail
   useEffect(() => {
     if (!documents.length) {
       setDocuments([
-        { document_id: '1', title: 'Quarterly Review 2025', status: 'In Progress', last_modified: '2025-03-28' },
-        { document_id: '2', title: 'Marketing Strategy', status: 'Review', last_modified: '2025-03-27' },
-        { document_id: '3', title: 'Product Roadmap', status: 'Approved', last_modified: '2025-03-26' },
+        {
+          document_id: "1",
+          title: "Quarterly Review 2025",
+          status: "In Progress",
+          last_modified: "2025-03-28",
+        },
+        {
+          document_id: "2",
+          title: "Marketing Strategy",
+          status: "Review",
+          last_modified: "2025-03-27",
+        },
+        {
+          document_id: "3",
+          title: "Product Roadmap",
+          status: "Approved",
+          last_modified: "2025-03-26",
+        },
       ]);
     }
-        
+
     if (!tasks.length) {
       setTasks([
-        { id: '1', title: 'Finalize design mockups', completed: false, dueDate: '2025-04-05', priority: 'High' },
-        { id: '2', title: 'Review content strategy', completed: true, dueDate: '2025-03-25', priority: 'Medium' },
-        { id: '3', title: 'Prepare presentation slides', completed: false, dueDate: '2025-04-02', priority: 'High' },
+        {
+          id: "1",
+          title: "Finalize design mockups",
+          completed: false,
+          dueDate: "2025-04-05",
+          priority: "High",
+        },
+        {
+          id: "2",
+          title: "Review content strategy",
+          completed: true,
+          dueDate: "2025-03-25",
+          priority: "Medium",
+        },
+        {
+          id: "3",
+          title: "Prepare presentation slides",
+          completed: false,
+          dueDate: "2025-04-02",
+          priority: "High",
+        },
       ]);
     }
-    
+
     if (!notifications.length) {
       setNotifications([
-        { id: '1', message: 'John commented on "Marketing Strategy"', time: '1 hour ago', read: false },
-        { id: '2', message: 'Document "Quarterly Review" was approved', time: '3 hours ago', read: false },
-        { id: '3', message: 'New task assigned: "Prepare presentation"', time: '5 hours ago', read: true },
+        {
+          id: "1",
+          message: 'John commented on "Marketing Strategy"',
+          time: "1 hour ago",
+          read: false,
+        },
+        {
+          id: "2",
+          message: 'Document "Quarterly Review" was approved',
+          time: "3 hours ago",
+          read: false,
+        },
+        {
+          id: "3",
+          message: 'New task assigned: "Prepare presentation"',
+          time: "5 hours ago",
+          read: true,
+        },
       ]);
     }
-    
+
     if (!users.length) {
       setUsers([
-        { id: '1', name: 'John Smith', role: 'project_manager', email: 'john@example.com' },
-        { id: '2', name: 'Sarah Johnson', role: 'admin', email: 'sarah@example.com' },
-        { id: '3', name: 'Michael Wong', role: 'editor', email: 'michael@example.com' },
+        {
+          id: "1",
+          name: "John Smith",
+          role: "project_manager",
+          email: "john@example.com",
+        },
+        {
+          id: "2",
+          name: "Sarah Johnson",
+          role: "admin",
+          email: "sarah@example.com",
+        },
+        {
+          id: "3",
+          name: "Michael Wong",
+          role: "editor",
+          email: "michael@example.com",
+        },
       ]);
     }
-    
+
     if (!calendarEvents.length) {
       setCalendarEvents([
-        { id: '1', title: 'Team Meeting', start: '2025-03-31 10:00', end: '2025-03-31 11:00' },
-        { id: '2', title: 'Document Review', start: '2025-04-02 14:00', end: '2025-04-02 15:30' },
-        { id: '3', title: 'Project Deadline', start: '2025-04-10', end: '2025-04-10', allDay: true },
+        {
+          id: "1",
+          title: "Team Meeting",
+          start: "2025-03-31 10:00",
+          end: "2025-03-31 11:00",
+        },
+        {
+          id: "2",
+          title: "Document Review",
+          start: "2025-04-02 14:00",
+          end: "2025-04-02 15:30",
+        },
+        {
+          id: "3",
+          title: "Project Deadline",
+          start: "2025-04-10",
+          end: "2025-04-10",
+          allDay: true,
+        },
       ]);
     }
-    
+
     if (!activityLog.length) {
       setActivityLog([
-        { id: '1', action: 'Document created', user: 'You', item: 'Marketing Strategy', time: '2025-03-30 09:15' },
-        { id: '2', action: 'Comment added', user: 'John Smith', item: 'Quarterly Review', time: '2025-03-30 11:30' },
-        { id: '3', action: 'Task completed', user: 'You', item: 'Review content strategy', time: '2025-03-29 16:45' },
+        {
+          id: "1",
+          action: "Document created",
+          user: "You",
+          item: "Marketing Strategy",
+          time: "2025-03-30 09:15",
+        },
+        {
+          id: "2",
+          action: "Comment added",
+          user: "John Smith",
+          item: "Quarterly Review",
+          time: "2025-03-30 11:30",
+        },
+        {
+          id: "3",
+          action: "Task completed",
+          user: "You",
+          item: "Review content strategy",
+          time: "2025-03-29 16:45",
+        },
       ]);
     }
   }, [documents, tasks, notifications, users, calendarEvents, activityLog]);
@@ -564,57 +735,87 @@ const getConsistentColor = (str) => {
       id: 1,
       title: "Standard Contract",
       description: "A standard contract template with common legal terms",
-      content: JSON.stringify({ sections: [{ title: "Terms and Conditions", content: "Standard terms..." }] }),
-      lockedSections: JSON.stringify([1, 2])
+      content: JSON.stringify({
+        sections: [
+          { title: "Terms and Conditions", content: "Standard terms..." },
+        ],
+      }),
+      lockedSections: JSON.stringify([1, 2]),
     },
     {
       id: 2,
       title: "NDA Agreement",
-      description: "Non-disclosure agreement for protecting confidential information",
-      content: JSON.stringify({ sections: [{ title: "Confidentiality", content: "All information shared..." }] }),
-      lockedSections: JSON.stringify([])
+      description:
+        "Non-disclosure agreement for protecting confidential information",
+      content: JSON.stringify({
+        sections: [
+          { title: "Confidentiality", content: "All information shared..." },
+        ],
+      }),
+      lockedSections: JSON.stringify([]),
     },
     {
       id: 3,
       title: "Employment Contract",
       description: "Standard employment contract with customizable terms",
-      content: JSON.stringify({ sections: [{ title: "Employment Terms", content: "Terms of employment..." }] }),
-      lockedSections: JSON.stringify([3])
+      content: JSON.stringify({
+        sections: [
+          { title: "Employment Terms", content: "Terms of employment..." },
+        ],
+      }),
+      lockedSections: JSON.stringify([3]),
     },
     {
       id: 4,
       title: "Sales Proposal",
-      description: "Professional sales proposal template for new business opportunities",
-      content: JSON.stringify({ sections: [{ title: "Executive Summary", content: "Proposal overview..." }] }),
-      lockedSections: JSON.stringify([])
+      description:
+        "Professional sales proposal template for new business opportunities",
+      content: JSON.stringify({
+        sections: [
+          { title: "Executive Summary", content: "Proposal overview..." },
+        ],
+      }),
+      lockedSections: JSON.stringify([]),
     },
     {
       id: 5,
       title: "Project Statement of Work",
-      description: "Detailed statement of work template for project documentation",
-      content: JSON.stringify({ sections: [{ title: "Project Scope", content: "The scope includes..." }] }),
-      lockedSections: JSON.stringify([1, 4])
-    }
+      description:
+        "Detailed statement of work template for project documentation",
+      content: JSON.stringify({
+        sections: [
+          { title: "Project Scope", content: "The scope includes..." },
+        ],
+      }),
+      lockedSections: JSON.stringify([1, 4]),
+    },
   ];
 
   // Render loading state
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <Spin size="large" tip="Loading Dashboard..." />
       </div>
     );
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <HeaderComponent
         user={user}
         localTime={localTime}
         notifications={notifications}
         handleLogout={handleLogout}
       />
-      
+
       <Layout>
         <Sidebar
           collapsed={collapsed}
@@ -624,52 +825,62 @@ const getConsistentColor = (str) => {
           menuItems={menuItems}
           user={user}
         />
-        
-        <Content style={{ padding: '24px', background: '#f0f2f5' }}>
-          {activeTab === 'overview' && <Overview 
-            documents={documents}
-            tasks={tasks}
-            activityLog={activityLog}
-            user={user}
-            users={users}
-            navigate={navigate}
-            notifications={notifications}
-            handleCreateDocument={() => setNewDocVisible(true)}
-            showJoinDocModal={() => setIsJoinDocModalVisible(true)}
-          />}
 
-          {activeTab === 'my-tasks' && <MyTasks 
-            tasks={tasks}
-            toggleTask={toggleTask}
-            handleCreateTask={() => setNewTaskVisible(true)}
-          />}
+        <Content style={{ padding: "24px", background: "#f0f2f5" }}>
+          {activeTab === "overview" && (
+            <Overview
+              documents={documents}
+              tasks={tasks}
+              activityLog={activityLog}
+              user={user}
+              users={users}
+              navigate={navigate}
+              notifications={notifications}
+              handleCreateDocument={() => setNewDocVisible(true)}
+              showJoinDocModal={() => setIsJoinDocModalVisible(true)}
+            />
+          )}
 
-          {activeTab === 'documents-list' && <Documents 
-            documents={documents}
-            navigate={navigate}
-            handleCreateDocument={() => setNewDocVisible(true)}
-          />}
+          {activeTab === "my-tasks" && (
+            <MyTasks
+              tasks={tasks}
+              toggleTask={toggleTask}
+              handleCreateTask={() => setNewTaskVisible(true)}
+            />
+          )}
 
-          {activeTab === 'document-approvals' && <DocumentApprovals 
-            documents={documents}
-            users={users}
-            navigate={navigate}
-          />}
+          {activeTab === "documents-list" && (
+            <Documents
+              documents={documents}
+              navigate={navigate}
+              handleCreateDocument={() => setNewDocVisible(true)}
+            />
+          )}
 
-          {activeTab === 'calendar' && <CalendarTab 
-            calendarEvents={calendarEvents}
-          />}
+          {activeTab === "document-approvals" && (
+            <DocumentApprovals
+              documents={documents}
+              users={users}
+              navigate={navigate}
+            />
+          )}
 
-          {activeTab === 'accounts' && <Accounts 
-            PasswordConfirmModal={PasswordConfirmModal}
-            requirePasswordConfirmation={requirePasswordConfirmation}
-            fetchUserData={fetchUserData}
-            departments={departments}
-            users={users}
-            invitedUsers={invitedUsers}
-            user={user}
-            getConsistentColor={getConsistentColor}
-          />}
+          {activeTab === "calendar" && (
+            <CalendarTab calendarEvents={calendarEvents} />
+          )}
+
+          {activeTab === "accounts" && (
+            <Accounts
+              PasswordConfirmModal={PasswordConfirmModal}
+              requirePasswordConfirmation={requirePasswordConfirmation}
+              fetchUserData={fetchUserData}
+              departments={departments}
+              users={users}
+              invitedUsers={invitedUsers}
+              user={user}
+              getConsistentColor={getConsistentColor}
+            />
+          )}
 
           {/* {activeTab === 'audit' && <Audit 
             activityLog={activityLog}
@@ -677,79 +888,83 @@ const getConsistentColor = (str) => {
 
           {activeTab === 'references' && <References />} */}
 
-          {activeTab === 'templates-list' && !editingTemplate && (
-          <Templates 
-            user={user}
-            navigate={navigate}
-            fetchUserData={fetchUserData}
-            users={users}
-            templates={templates}
-            handleEditTemplate={handleEditTemplate}
-            PUBLIC_TEMPLATES={PUBLIC_TEMPLATES}
-            categories={templateCategories}
-            departments={departments}
-          />
+          {activeTab === "templates-list" && !editingTemplate && (
+            <Templates
+              user={user}
+              navigate={navigate}
+              fetchUserData={fetchUserData}
+              users={users}
+              templates={templates}
+              handleEditTemplate={handleEditTemplate}
+              PUBLIC_TEMPLATES={PUBLIC_TEMPLATES}
+              categories={templateCategories}
+              departments={departments}
+            />
           )}
 
-          {activeTab === 'create-template' && <CreateTemplate 
-            fetchUserData={fetchUserData}
-            user={user}
-            users={users}
-            categories={templateCategories}
-            departments={departments}
-            onSuccess={() => {
-              setActiveTab('templates-list');
-              fetchUserData(); // Refresh the templates list
-            }}
-          />}
-
-          {activeTab === 'templates-list' && editingTemplate && (
-          <EditTemplate
-            fetchUserData={fetchUserData}
-            template={editingTemplate}
-            user={user}
-            users={users}
-            categories={templateCategories}
-            departments={departments}
-            onCancel={() => {
-              setEditingTemplate(null);
-              fetchUserData();
-            }}
-          />
+          {activeTab === "create-template" && (
+            <CreateTemplate
+              fetchUserData={fetchUserData}
+              user={user}
+              users={users}
+              categories={templateCategories}
+              departments={departments}
+              onSuccess={() => {
+                setActiveTab("templates-list");
+                fetchUserData(); // Refresh the templates list
+              }}
+            />
           )}
 
-          {activeTab === 'template-approval' && <ApproverDashboard  
-            templates={templates}
-            user={user}
-            usersData={users}
-            onRefresh={fetchUserData}
-            departments={departments}
-          />}
-
-          {activeTab === 'template-monitoring' && !previewTemplate && (
-          <AdminTemplateMonitoring 
-            templates={templates}
-            user={user}
-            users={users}
-            onRefresh={fetchUserData}
-            departments={departments}
-            handlePreviewTemplate={handlePreviewTemplate}
-          />
+          {activeTab === "templates-list" && editingTemplate && (
+            <EditTemplate
+              fetchUserData={fetchUserData}
+              template={editingTemplate}
+              user={user}
+              users={users}
+              categories={templateCategories}
+              departments={departments}
+              onCancel={() => {
+                setEditingTemplate(null);
+                fetchUserData();
+              }}
+            />
           )}
 
-          {activeTab === 'template-monitoring' && previewTemplate && (
-          <TemplatePreview 
-            fetchUserData={fetchUserData}
-            template={previewTemplate}
-            currentUser={user}
-            users={users}
-            categories={templateCategories}
-            departments={departments}
-            onCancel={() => {
-              setPreviewTemplate(null);
-              fetchUserData();
-            }}
-          />
+          {activeTab === "template-approval" && (
+            <ApproverDashboard
+              templates={templates}
+              user={user}
+              usersData={users}
+              onRefresh={fetchUserData}
+              departments={departments}
+            />
+          )}
+
+          {activeTab === "template-monitoring" && !previewTemplate && (
+            <AdminTemplateMonitoring
+              templates={templates}
+              user={user}
+              users={users}
+              onRefresh={fetchUserData}
+              departments={departments}
+              handlePreviewTemplate={handlePreviewTemplate}
+            />
+          )}
+
+          {activeTab === "template-monitoring" && previewTemplate && (
+            <TemplatePreview
+              fetchUserData={fetchUserData}
+              template={previewTemplate}
+              currentUser={user}
+              users={users}
+              categories={templateCategories}
+              departments={departments}
+              onCancel={() => {
+                setPreviewTemplate(null);
+                fetchUserData();
+              }}
+            />
           )}
 
           {/* {activeTab === 'settings' && <Settings 
@@ -758,7 +973,7 @@ const getConsistentColor = (str) => {
         </Content>
       </Layout>
 
-      <PasswordConfirmModal 
+      <PasswordConfirmModal
         visible={isPasswordModalVisible}
         onConfirm={handlePasswordConfirmed}
         onCancel={handlePasswordModalCancel}
