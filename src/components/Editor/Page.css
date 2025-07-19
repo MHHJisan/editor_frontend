@@ -1,0 +1,12 @@
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  max-height: 297mm;
+  margin: 20px auto;
+  background: white;
+  box-shadow: 0 0 5px #ccc;
+  padding: 40px 30px;
+  overflow: hidden;
+  position: relative;
+  page-break-after: always;
+}
